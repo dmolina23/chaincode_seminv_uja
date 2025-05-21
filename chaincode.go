@@ -67,6 +67,38 @@ func (tc *TitleContract) Transfer(
     return fmt.Errorf("ERROR: Soulbound Tokens no son transferibles")
 }
 
+func (tc *TitleContract) GetTitlesByStudent(
+	ctx contractapi.TransactionContextInterface,
+	studentID string) ([]*AcademicTitle, error) {
+		queryString := fmt.Sprintf(`{"selector":{"studentId":"%s"}}`, studentID)
+
+		// Creamos un iterador para buscar en el ledger
+		resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+		if err != nil {
+			return nil, fmt.Errorf("ERROR al obtener títulos: %v", err)
+		}
+		defer resultsIterator.Close()
+
+		var titles []*AcademicTitle
+
+		for resultsIterator.HasNext() {
+			queryResponse, err := resultsIterator.Next()
+			if err != nil {
+				return nil, fmt.Errorf("ERROR al iterar resultados: %v", err)
+			}
+
+			var title AcademicTitle
+			err = json.Unmarshal(queryResponse.Value, &title)
+			if err != nil {
+				return nil, fmt.Errorf("ERROR al deserializar título: %v", err)
+			}
+
+			titles = append(titles, &title)
+		}
+
+		return titles, nil
+}
+
 func generateValidationHash(title AcademicTitle) string {
 	// Implementar lógica de generación de hash
 	// Por ejemplo, hash SHA-256 de los datos del título

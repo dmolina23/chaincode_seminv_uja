@@ -13,6 +13,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+import "github.com/hyperledger/fabric-protos-go/ledger/queryresult"
+
+
 // MockStub simula el stub de transacción
 type MockStub struct {
 	mock.Mock
@@ -248,4 +251,155 @@ func TestTransfer(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, "ERROR: Soulbound Tokens no son transferibles", err.Error())
 	})
+}
+
+func TestGetTitlesByStudent(t *testing.T) {
+	// Configurar mocks
+	mockStub := new(MockStub)
+	mockClientID := new(MockClientIdentity)
+	mockContext := new(MockContext)
+	mockContext.stub = mockStub
+	mockContext.clientID = mockClientID
+
+	contract := new(TitleContract)
+
+	// Datos de prueba
+	testTitles := []AcademicTitle{
+		{
+			TitleID:      "TITLE001",
+			StudentID:    "STUDENT001",
+			StudentName:  "Juan Pérez",
+			Degree:       "Ingeniería Informática",
+			EmissionDate: "2025-03-05",
+			ValidationHash: generateValidationHash(AcademicTitle{
+				StudentID:    "STUDENT001",
+				Degree:       "Ingeniería Informática",
+				EmissionDate: "2025-03-05",
+			}),
+		},
+		{
+			TitleID:      "TITLE002",
+			StudentID:    "STUDENT001",
+			StudentName:  "Juan Pérez",
+			Degree:       "Máster en IA",
+			EmissionDate: "2026-07-15",
+			ValidationHash: generateValidationHash(AcademicTitle{
+				StudentID:    "STUDENT001",
+				Degree:       "Máster en IA",
+				EmissionDate: "2026-07-15",
+			}),
+		},
+	}
+
+	// Test case: Obtener títulos exitosamente
+	t.Run("Obtener títulos exitosamente", func(t *testing.T) {
+		// Crear resultados simulados para el iterador
+		mockResults := []shim.StateQueryIteratorInterface{
+			&MockStateQueryIterator{
+				Results: [][]byte{
+					mustMarshal(testTitles[0]),
+					mustMarshal(testTitles[1]),
+				},
+			},
+		}
+
+		mockStub.On("GetQueryResult", `{"selector":{"studentId":"STUDENT001"}}`).Return(mockResults[0], nil)
+
+		titles, err := contract.GetTitlesByStudent(mockContext, "STUDENT001")
+
+		assert.NoError(t, err)
+		assert.Len(t, titles, 2)
+		assert.Equal(t, testTitles[0].TitleID, titles[0].TitleID)
+		assert.Equal(t, testTitles[1].TitleID, titles[1].TitleID)
+		mockStub.AssertExpectations(t)
+	})
+
+	// Test case: Error al obtener resultados del ledger
+	t.Run("Error al obtener resultados del ledger", func(t *testing.T) {
+		mockStub.On("GetQueryResult", `{"selector":{"studentId":"STUDENT001"}}`).Return(nil, fmt.Errorf("error al ejecutar consulta"))
+
+		titles, err := contract.GetTitlesByStudent(mockContext, "STUDENT001")
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ERROR al obtener títulos")
+		assert.Nil(t, titles)
+		mockStub.AssertExpectations(t)
+	})
+
+	// Test case: Error al iterar resultados
+	t.Run("Error al iterar resultados", func(t *testing.T) {
+		mockResults := []shim.StateQueryIteratorInterface{
+			&MockStateQueryIterator{
+				Results: [][]byte{
+					mustMarshal(testTitles[0]),
+				},
+				NextError: fmt.Errorf("error al iterar"),
+			},
+		}
+
+		mockStub.On("GetQueryResult", `{"selector":{"studentId":"STUDENT001"}}`).Return(mockResults[0], nil)
+
+		titles, err := contract.GetTitlesByStudent(mockContext, "STUDENT001")
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ERROR al iterar resultados")
+		assert.Nil(t, titles)
+		mockStub.AssertExpectations(t)
+	})
+
+	// Test case: Error al deserializar título
+	t.Run("Error al deserializar título", func(t *testing.T) {
+		mockResults := []shim.StateQueryIteratorInterface{
+			&MockStateQueryIterator{
+				Results: [][]byte{
+					[]byte("invalid-json"),
+				},
+			},
+		}
+
+		mockStub.On("GetQueryResult", `{"selector":{"studentId":"STUDENT001"}}`).Return(mockResults[0], nil)
+
+		titles, err := contract.GetTitlesByStudent(mockContext, "STUDENT001")
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ERROR al deserializar título")
+		assert.Nil(t, titles)
+		mockStub.AssertExpectations(t)
+	})
+}
+
+// Helper para serializar datos
+func mustMarshal(v interface{}) []byte {
+	data, _ := json.Marshal(v)
+	return data
+}
+
+// MockStateQueryIterator simula un iterador de consulta de estado
+type MockStateQueryIterator struct {
+	mock.Mock
+	Results   [][]byte
+	NextError error
+	Index     int
+}
+
+func (ms *MockStub) GetQueryResult(query string) (shim.StateQueryIteratorInterface, error) {
+	args := ms.Called(query)
+	return args.Get(0).(shim.StateQueryIteratorInterface), args.Error(1)
+}
+
+func (m *MockStateQueryIterator) HasNext() bool {
+	return m.Index < len(m.Results)
+}
+
+func (m *MockStateQueryIterator) Next() (*queryresult.KV, error) {
+	if m.NextError != nil {
+		return nil, m.NextError
+	}
+	result := m.Results[m.Index]
+	m.Index++
+	return &queryresult.KV{Value: result}, nil
+}
+
+func (m *MockStateQueryIterator) Close() error {
+	return nil
 }
