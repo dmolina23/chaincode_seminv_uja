@@ -230,3 +230,22 @@ func TestVerifyTitle(t *testing.T) {
 		mockStub.AssertExpectations(t)
 	})
 }
+func TestTransfer(t *testing.T) {
+	// Configurar mocks
+	mockStub := new(MockStub)
+	mockClientID := new(MockClientIdentity)
+	mockContext := new(MockContext)
+	mockContext.stub = mockStub
+	mockContext.clientID = mockClientID
+
+	contract := new(TitleContract)
+
+	// Test case: Intento de transferencia
+	t.Run("Intento de transferencia de Soulbound Token", func(t *testing.T) {
+		err := contract.Transfer(mockContext, "TITLE001", "NEW_OWNER")
+
+		// Verificar resultados
+		assert.Error(t, err)
+		assert.Equal(t, "ERROR: Soulbound Tokens no son transferibles", err.Error())
+	})
+}

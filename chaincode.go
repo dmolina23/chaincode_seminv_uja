@@ -59,6 +59,14 @@ func (tc *TitleContract) VerifyTitle(
 	return &title, err
 }
 
+func (tc *TitleContract) Transfer(
+    ctx contractapi.TransactionContextInterface,
+    tokenID string,
+    newOwner string,
+) error {
+    return fmt.Errorf("ERROR: Soulbound Tokens no son transferibles")
+}
+
 func generateValidationHash(title AcademicTitle) string {
 	// Implementar lógica de generación de hash
 	// Por ejemplo, hash SHA-256 de los datos del título

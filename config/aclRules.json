@@ -1,0 +1,16 @@
+{
+  "policies": {
+    "Readers": {
+      "Type": "Signature",
+      "Rule": "OR('universityMSP.peer','verifierMSP.member')"
+    },
+    "Writers": {
+      "Type": "Signature",
+      "Rule": "OR('universityMSP.peer')"
+    },
+    "Admins": {
+      "Type": "Signature",
+      "Rule": "OR('universityMSP.admin')"
+    }
+  }
+}
