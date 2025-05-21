@@ -5,6 +5,12 @@ La finalidad de este documento es obtener un entorno de pruebas funcional para t
 
 Este documento cubre desde la instalación de requisitos previos hasta la ejecución de pruebas básicas con el chaincode desplegado en una red simulada en Hyperledger Fabric.
 
+## Consideraciones de la versión actual
+> 1. El script automático y la automatización de la generación de nodos ficticios usando Docker no están testeados y pueden causar errores
+> 2. La configuración actual no contempla el uso de las políticas de transacción definidas en los últimos cambios: para aplicar el archivo ACL (Access Control List) debemos realizar algunos cambios en el paso de la generación del canal
+> 3. Todavía no se han realizado pruebas de integración sobre la limitación de transferencias ni sobre la obtención de títulos asignados a un alumno. Esto quiere decir que puede la implementación puede dar fallos al intentar realizar pruebas de integración (posibles errores en la interacción con el chaincode para realizar pruebas básicas)
+> 4. La parte de pruebas con NodeJS no se ha llevado a cabo, en un futuro se implementará una API wallet (utilizando Express y Node) que nos permitirá obtener un MVP de este proyecto 
+
 ## 1. Instalación de requisitos previos
 ### 1.1 Instalación de Docker y Docker Compose
 ```bash
@@ -155,7 +161,7 @@ También nos encontramos con el archivo `chaincode_test.go`, que simplemente imp
 
 El archivo `app.test.js` es un test de integración implementado en NodeJS. 
 
-## 6. Paso a paso de realización de pruebas con NodeJS
+## 6. Paso a paso de realización de pruebas con NodeJS (NO IMPLEMENTADO)
 Para poder comprobar su funcionamiento necesitaremos realizar los siguientes pasos:
 
 ### 6.1 Verificar e instalar dependencias
