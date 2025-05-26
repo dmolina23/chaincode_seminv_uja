@@ -1,0 +1,749 @@
+{
+  "info": {
+    "name": "NFT Wallet API",
+    "description": "Complete collection for testing NFT Academic Credentials Wallet API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('Request to:', pm.request.url);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    // Save token for future requests",
+                  "    pm.environment.set('student_token', jsonData.token);",
+                  "    pm.environment.set('auth_token', jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user).to.exist;",
+                  "    pm.expect(jsonData.user.email).to.exist;",
+                  "    pm.expect(jsonData.user.role).to.eql('student');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{student_email}}\",\n  \"password\": \"{{student_password}}\",\n  \"studentId\": \"{{student_id}}\",\n  \"firstName\": \"{{student_first_name}}\",\n  \"lastName\": \"{{student_last_name}}\",\n  \"university\": \"{{university_name}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/student",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register", "student"]
+            }
+          }
+        },
+        {
+          "name": "Register Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    // Save org token",
+                  "    pm.environment.set('org_token', jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test('Response has organization data', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.organization).to.exist;",
+                  "    pm.expect(jsonData.organization.role).to.eql('organization');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{org_email}}\",\n  \"password\": \"{{org_password}}\",\n  \"organizationName\": \"{{org_name}}\",\n  \"organizationId\": \"{{org_id}}\",\n  \"contactPerson\": \"{{org_contact}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/organization",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register", "organization"]
+            }
+          }
+        },
+        {
+          "name": "Login Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login successful', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql('Login successful');",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    // Update tokens",
+                  "    pm.environment.set('student_token', jsonData.token);",
+                  "    pm.environment.set('auth_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{student_email}}\",\n  \"password\": \"{{student_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login successful', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.environment.set('org_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{org_email}}\",\n  \"password\": \"{{org_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍🎓 Student Endpoints",
+      "item": [
+        {
+          "name": "Get My NFTs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has NFTs array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nfts).to.be.an('array');",
+                  "    pm.expect(jsonData.count).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('NFTs have required fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.nfts.length > 0) {",
+                  "        const nft = jsonData.nfts[0];",
+                  "        pm.expect(nft.id).to.exist;",
+                  "        pm.expect(nft.title).to.exist;",
+                  "        pm.expect(nft.issuer).to.exist;",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{student_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/student/nfts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "student", "nfts"]
+            }
+          }
+        },
+        {
+          "name": "Get Specific NFT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has NFT data', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nft).to.exist;",
+                  "    pm.expect(jsonData.nft.id).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{student_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/student/nfts/{{test_nft_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "student", "nfts", "{{test_nft_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Profile data exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.profile).to.exist;",
+                  "    pm.expect(jsonData.profile.email).to.exist;",
+                  "});",
+                  "",
+                  "pm.test('Password not included in profile', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.profile.password).to.not.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{student_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏛️ Organization Endpoints",
+      "item": [
+        {
+          "name": "Get All Issued NFTs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has NFTs array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nfts).to.be.an('array');",
+                  "    pm.expect(jsonData.organizationId).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{org_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/organization/nfts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "organization", "nfts"]
+            }
+          }
+        },
+        {
+          "name": "Get NFT Traceability",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Traceability data exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.traceability).to.exist;",
+                  "    pm.expect(jsonData.traceability.nftId).to.exist;",
+                  "    pm.expect(jsonData.traceability.transactions).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{org_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/organization/nfts/{{test_nft_id}}/trace",
+              "host": ["{{base_url}}"],
+              "path": ["api", "organization", "nfts", "{{test_nft_id}}", "trace"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌐 Public Verification",
+      "item": [
+        {
+          "name": "Verify NFT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Verification data exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isValid).to.be.a('boolean');",
+                  "    pm.expect(jsonData.nft).to.exist;",
+                  "    pm.expect(jsonData.verification).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/verify/{{test_nft_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "verify", "{{test_nft_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Generate QR Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('QR code data exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.qrCode).to.exist;",
+                  "    pm.expect(jsonData.verificationUrl).to.exist;",
+                  "    pm.expect(jsonData.nftId).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/qr/{{test_nft_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "qr", "{{test_nft_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get QR Code Image",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is PNG image', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.eql('image/png');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/qr/{{test_nft_id}}/image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "qr", "{{test_nft_id}}", "image"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Utility & Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Health status is OK', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('OK');",
+                  "});",
+                  "",
+                  "pm.test('Response has timestamp', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.timestamp).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❌ Error Testing",
+      "item": [
+        {
+          "name": "Unauthorized Access",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/student/nfts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "student", "nfts"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Invalid credentials error', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.eql('Invalid credentials');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{student_email}}\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Email Format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Validation errors exist', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.errors).to.exist;",
+                  "    pm.expect(jsonData.errors).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invalid-email\",\n  \"password\": \"password123\",\n  \"studentId\": \"TEST001\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Student\",\n  \"university\": \"Test University\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/student",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register", "student"]
+            }
+          }
+        },
+        {
+          "name": "Role-based Access Control",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test('Organization access required error', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.eql('Organization access required');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{student_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/organization/nfts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "organization", "nfts"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "test_nft_id",
+      "value": "nft1"
+    }
+  ]
+}
