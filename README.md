@@ -130,28 +130,17 @@ CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example
 export CORE_PEER_ADDRESS=localhost:7051
 
 # Desplegar el chaincode
-./network.sh deployCC -ccn academic-titles -ccp ~/academic-titles-
+./network.sh deployCC -c academictitles -ccn academic-titles -ccp ~/academic-titles-
 project/chaincode/academic-titles -ccl go
 ```
 
 ## 4. Interacción con el ChainCode para realizar pruebas básicas
 ```bash
 # Invocar la función de emisión de título
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride
-orderer.example.com --tls --cafile
-${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.exam
-ple.com/msp/tlscacerts/tlsca.example.com-cert.pem -C academictitles -n
-academic-titles --peerAddresses localhost:7051 --tlsRootCertFiles
-${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.ex
-ample.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles
-${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.ex
-ample.com/tls/ca.crt -c '{"function":"IssueTitleToStudent","Args":
-["TITLE001", "STUDENT001", "Ana López", "Ingeniería Informática", "2025-03-
-06"]}'
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C academictitles -n academic-titles --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"IssueTitleToStudent","Args":["{\"titleId\":\"TITLE001\",\"studentId\":\"STUDENT001\",\"studentName\":\"Ana López\",\"degree\":\"Ingeniería Informática\",\"emissionDate\":\"2025-03-06\", \"validationHash\":\"\"}"]}'
 
 # Consultar un título
-peer chaincode query -C academictitles -n academic-titles -c
-'{"function":"VerifyTitle","Args":["TITLE001"]}'
+peer chaincode query -C academictitles -n academic-titles -c '{"function":"VerifyTitle","Args":["TITLE001"]}'
 ```
 
 ## 5. Descripción del código
